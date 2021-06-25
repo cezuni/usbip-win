@@ -33,7 +33,7 @@ walker_devpath(HDEVINFO dev_info, PSP_DEVINFO_DATA pdev_info_data, devno_t devno
 
 	*pdevpath = _strdup(pdev_interface_detail->DevicePath);
 	free(pdev_interface_detail);
-	return -1;
+	return 1;
 }
 
 static char *
@@ -41,7 +41,7 @@ get_vhci_devpath(void)
 {
 	char	*devpath;
 
-	if (traverse_intfdevs(walker_devpath, &GUID_DEVINTERFACE_VHCI_USBIP, &devpath) != -1) {
+	if (traverse_intfdevs(walker_devpath, &GUID_DEVINTERFACE_VHCI_USBIP, &devpath) != 1) {
 		return NULL;
 	}
 

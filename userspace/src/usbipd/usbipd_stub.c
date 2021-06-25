@@ -41,7 +41,7 @@ walker_devpath(HDEVINFO dev_info, PSP_DEVINFO_DATA pdev_info_data, devno_t devno
 	}
 	pctx->devpath = _strdup(pdetail->DevicePath);
 	free(pdetail);
-	return -1;
+	return 1;
 }
 
 static char *
@@ -52,7 +52,7 @@ get_device_path(const char *id_inst)
 
 	devpath_ctx.id_inst = id_inst;
 	rc = traverse_intfdevs(walker_devpath, &GUID_DEVINTERFACE_STUB_USBIP, &devpath_ctx);
-	if (rc != -1) {
+	if (rc != 1) {
 		dbg("traverse_intfdevs failed, returned: %d", rc);
 		return NULL;
 	}
@@ -98,7 +98,7 @@ walker_get_id_inst(HDEVINFO dev_info, PSP_DEVINFO_DATA pdev_info_data, devno_t d
 
 	if (devno == pctx->devno) {
 		pctx->id_inst = get_id_inst(dev_info, pdev_info_data);
-		return -1;
+		return 1;
 	}
 	return 0;
 }
@@ -112,7 +112,7 @@ get_devpath_from_devno(devno_t devno)
 
 	ctx.devno = devno;
 	rc = traverse_usbdevs(walker_get_id_inst, TRUE, &ctx);
-	if (rc != -1) {
+	if (rc != 1) {
 		dbg("traverse_usbdevs failed. traverse_usbdevs returned %d.", rc);
 		return NULL;
 	}
