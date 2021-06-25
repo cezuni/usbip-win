@@ -198,15 +198,22 @@ uninstall_driver_package(drv_info_t *pinfo)
 	return TRUE;
 }
 
+extern BOOL has_certificate(LPCSTR subject);
+
 static int
 install_driver_package(drv_info_t *pinfo)
 {
 	char	*inf_path;
 	int	res = 0;
 
+	if (!has_certificate("USBIP Test")) {
+		dbg("USBIP Test certificate not found");
+		return ERR_CERTIFICATE;
+	}
+
 	inf_path = get_source_inf_path(pinfo);
 	if (inf_path == NULL)
-		return FALSE;
+		return ERR_GENERAL;
 
 	if (!SetupCopyOEMInf(inf_path, NULL, SPOST_PATH, 0, NULL, 0, NULL, NULL)) {
 		DWORD	err = GetLastError();
@@ -372,6 +379,9 @@ install_vhci(int type)
 		switch (ret) {
 		case ERR_ACCESS:
 			err("access denied: make sure you are running as administrator");
+			break;
+		case ERR_CERTIFICATE:
+			err("\"USBIP Test\" certificate not found. Please install first!");
 			break;
 		default:
 			err("cannot install %s driver package", pinfo->name);

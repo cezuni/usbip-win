@@ -138,3 +138,17 @@ out:
 
 	return ret;
 }
+
+BOOL
+has_certificate(LPCSTR subject)
+{
+	PCCERT_CONTEXT		pCertContext;
+	HCERTSTORE		hCertStore;
+
+	pCertContext = load_cert_context(subject, &hCertStore);
+	if (pCertContext == NULL)
+		return FALSE;
+	CertFreeCertificateContext(pCertContext);
+	CertCloseStore(hCertStore, 0);
+	return TRUE;
+}
