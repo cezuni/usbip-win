@@ -41,16 +41,12 @@ walker_bind(HDEVINFO dev_info, PSP_DEVINFO_DATA pdev_info_data, devno_t devno, v
 		int	ret;
 
 		ret = attach_stub_driver(devno);
-		switch (ret) {
-		case 0:
+		if (ret == 0) {
 			if (!restart_device(dev_info, pdev_info_data))
 				return ERR_DRIVER;
 			return 1;
-		case ERR_NOTEXIST:
-			return ERR_NOTEXIST;
-		default:
-			return ERR_GENERAL;
 		}
+		return ret;
 	}
 	return 0;
 }
@@ -72,6 +68,9 @@ bind_device(const char *busid)
 		case 0:
 		case ERR_NOTEXIST:
 			err("no such device on busid %s", busid);
+			return 2;
+		case ERR_CERTIFICATE:
+			err("\"USBIP Test\" certficiate not installed or properly located in certificate store");
 			return 2;
 		default:
 			err("failed to bind device on busid %s", busid);

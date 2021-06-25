@@ -22,48 +22,24 @@ load_mssign32_lib(HMODULE	*phMod, SignerSignEx_t *pfSignerSignEx, SignerFreeSign
 }
 
 static PCCERT_CONTEXT
-load_cert_context(LPCSTR subject)
+load_cert_context(LPCSTR subject, HCERTSTORE *phCertStore)
 {
-	HCERTSTORE	hCertStore;
 	PCCERT_CONTEXT	pCertContext;
-	char		*cn_subject;
-	CERT_NAME_BLOB	blob;
+	WCHAR	*wSubject;
 
-	hCertStore = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, (HCRYPTPROV)NULL, CERT_SYSTEM_STORE_LOCAL_MACHINE, L"Root");
-	if (hCertStore == NULL) {
+	*phCertStore = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, (HCRYPTPROV)NULL, CERT_SYSTEM_STORE_LOCAL_MACHINE, L"Root");
+	if (*phCertStore == NULL) {
 		dbg("load_cert_context: failed to open certificate store: %lx", GetLastError());
 		return NULL;
 	}
-
-	asprintf(&cn_subject, "CN=%s", subject);
-	if (!CertStrToName(X509_ASN_ENCODING, cn_subject, CERT_X500_NAME_STR, NULL, NULL, &blob.cbData, NULL)) {
-		dbg("load_cert_context: failed to allocate subject string");
-		free(cn_subject);
-		return NULL;
-	}
-
-	blob.pbData = malloc(blob.cbData);
-	if (blob.pbData == NULL) {
-		dbg("load_cert_context: out of memory");
-		free(cn_subject);
-		return NULL;
-	}
-
-	if (!CertStrToName(X509_ASN_ENCODING, cn_subject, CERT_X500_NAME_STR, NULL, blob.pbData, &blob.cbData, NULL)) {
-		dbg("load_cert_context: failed to allocate subject string");
-		free(cn_subject);
-		free(blob.pbData);
-		return NULL;
-	}
-	free(cn_subject);
-
-	pCertContext = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_SUBJECT_NAME, (void *)&blob, NULL);
-	free(blob.pbData);
+	wSubject = utf8_to_wchar(subject);
+	pCertContext = CertFindCertificateInStore(*phCertStore, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_SUBJECT_STR, wSubject, NULL);
+	free(wSubject);
 
 	return pCertContext;
 }
 
-BOOL
+int
 sign_file(LPCSTR subject, LPCSTR fpath)
 {
 	SIGNER_FILE_INFO	signerFileInfo;
@@ -74,6 +50,7 @@ sign_file(LPCSTR subject, LPCSTR fpath)
 	CRYPT_ATTRIBUTE		cryptAttribute[2];
 	CRYPT_INTEGER_BLOB	oidSpOpusInfoBlob, oidStatementTypeBlob;
 	CRYPT_ATTRIBUTES_ARRAY	cryptAttributesArray;
+	HCERTSTORE		hCertStore;
 	BYTE	pbOidSpOpusInfo[] = SP_OPUS_INFO_DATA;
 	BYTE	pbOidStatementType[] = STATEMENT_TYPE_DATA;
 	DWORD	dwIndex;
@@ -84,16 +61,16 @@ sign_file(LPCSTR subject, LPCSTR fpath)
 	SignerFreeSignerContext_t	funcSignerFreeSignerContext;
 	HRESULT	hres;
 	HMODULE	hMod;
-	BOOL	res = FALSE;
+	int	ret = ERR_GENERAL;
 
 	if (!load_mssign32_lib(&hMod, &funcSignerSignEx, &funcSignerFreeSignerContext))
-		return FALSE;
+		return ERR_GENERAL;
 
-	pCertContext = load_cert_context(subject);
+	pCertContext = load_cert_context(subject, &hCertStore);
 	if (pCertContext == NULL) {
 		dbg("cannot load certificate: subject: %s", subject);
 		FreeLibrary(hMod);
-		return FALSE;
+		return ERR_NOTEXIST;
 	}
 
 	// Setup SIGNER_FILE_INFO struct
@@ -150,13 +127,14 @@ sign_file(LPCSTR subject, LPCSTR fpath)
 		dbg("SignerSignEx failed. hResult #%X", hres);
 		goto out;
 	}
-	res = TRUE;
+	ret = 0;
 out:
 	free(wfpath);
 	if (pSignerContext)
 		funcSignerFreeSignerContext(pSignerContext);
 	CertFreeCertificateContext(pCertContext);
+	CertCloseStore(hCertStore, 0);
 	FreeLibrary(hMod);
 
-	return res;
+	return ret;
 }
