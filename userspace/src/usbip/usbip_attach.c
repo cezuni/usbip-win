@@ -28,6 +28,8 @@
 
 #include "usbip_dscr.h"
 
+#define ATTACHER	"attacher.exe"
+
 static const char usbip_attach_usage_string[] =
 	"usbip attach <args>\n"
 	"    -r, --remote=<host>    The machine with exported USB devices\n"
@@ -232,7 +234,7 @@ execute_attacher(HANDLE hdev, SOCKET sockfd, int rhport)
 	si.dwFlags = STARTF_USESTDHANDLES;
 	ZeroMemory(&pi, sizeof(pi));
 
-	res = CreateProcess("attacher.exe", "attacher.exe", NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
+	res = CreateProcess(ATTACHER, ATTACHER, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi);
 	if (!res) {
 		DWORD	err = GetLastError();
 		if (err == ERROR_FILE_NOT_FOUND)
@@ -309,10 +311,10 @@ attach_device(const char *host, const char *busid, const char *serial, BOOL ters
 	else {
 		switch (ret) {
 		case ERR_NOTEXIST:
-			err("attacher.exe not found");
+			err(ATTACHER " not found");
 			break;
 		default:
-			err("failed to running attacher.exe");
+			err("failed to running " ATTACHER);
 			break;
 		}
 		ret = 4;
@@ -321,6 +323,16 @@ attach_device(const char *host, const char *busid, const char *serial, BOOL ters
 	closesocket(sockfd);
 
 	return ret;
+}
+
+static BOOL
+check_attacher(void)
+{
+	DWORD	bintype;
+
+	if (!GetBinaryType(ATTACHER, &bintype))
+		return FALSE;
+	return TRUE;
 }
 
 int usbip_attach(int argc, char *argv[])
@@ -374,5 +386,9 @@ int usbip_attach(int argc, char *argv[])
 		return 1;
 	}
 
+	if (!check_attacher()) {
+		err(ATTACHER " not found");
+		return 126;
+	}
 	return attach_device(host, busid, serial, terse);
 }
