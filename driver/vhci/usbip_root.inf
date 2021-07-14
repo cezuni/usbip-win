@@ -11,6 +11,8 @@ ClassGuid={4D36E97D-E325-11CE-BFC1-08002BE10318}
 Provider=%Provider%
 CatalogFile=usbip_vhci.cat
 
+PnpLockDown=1
+
 [Manufacturer]
 %StdMfg%=Standard,NT$ARCH$
 
@@ -46,7 +48,7 @@ AddService = usbip_vhci,%SPSVCINST_ASSOCSERVICE%, usbip_vhci_Service_Inst
 [usbip_vhci_Service_Inst]
 DisplayName    = %ServiceDesc%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
-StartType      = 3               ; SERVICE_DEMAND_START 
+StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
 ServiceBinary  = %12%\usbip_vhci.sys
 LoadOrderGroup = Extended Base

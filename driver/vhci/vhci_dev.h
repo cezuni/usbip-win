@@ -23,10 +23,6 @@
 
 #define IS_FDO(type)		((type) == VDEV_ROOT || (type) == VDEV_VHCI || (type) == VDEV_VHUB)
 
-#define HWID_ROOT	L"USBIPWIN\\root"
-#define HWID_VHCI	L"USBIPWIN\\vhci"
-#define HWID_VHUB	L"USB\\ROOT_HUB&VID1209&PID8250&REV0000"
-
 extern LPCWSTR devcodes[];
 
 // These are the states a vpdo or vhub transition upon
@@ -65,7 +61,7 @@ typedef struct _vdev {
 	PDEVICE_OBJECT	Self;
 
 	vdev_type_t		type;
-	// reference count for maintaining vdev validity 
+	// reference count for maintaining vdev validity
 	LONG	n_refs;
 
 	// We track the state of the device with every PnP Irp
@@ -174,7 +170,7 @@ typedef struct
 	BOOLEAN		plugged;
 
 	UCHAR	speed;
-	UCHAR	unused; /* 4 bytes alignment */
+	UCHAR	num_configurations; // Number of Possible Configurations
 
 	// a pending irp when no urb is requested
 	PIRP	pending_read_irp;

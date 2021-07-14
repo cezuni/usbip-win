@@ -11,12 +11,14 @@ ClassGuid={36FC9E60-C465-11CF-8056-444553540000}
 Provider=%Provider%
 CatalogFile=usbip_vhci.cat
 
+PnpLockDown=1
+
 [Manufacturer]
 %StdMfg%=Standard,NT$ARCH$
 
 [Standard.NT$ARCH$]
 %DeviceDesc%=usbip_vhci_Device, USBIPWIN\vhci
-%vhub_DeviceDesc%=usbip_vhci_Device, USB\ROOT_HUB&VID1209&PID8250&REV0000
+%vhub_DeviceDesc%=usbip_vhci_Device, USB\ROOT_HUB&VID_1209&PID_8250&REV_0000
 
 [DestinationDirs]
 DefaultDestDir = 12
@@ -36,7 +38,7 @@ CopyFiles=Drivers_Dir
 [usbip_vhci_Device.NT$ARCH$.HW]
 AddReg=usbip_vhci_Device_AddReg
 
-[usbip_vhci_Device_AddReg]                            
+[usbip_vhci_Device_AddReg]
 HKR,,DeviceCharacteristics,0x10001,0x0100         ; Use same security checks on relative opens
 
 ;-------------- Service installation
@@ -47,7 +49,7 @@ AddService = usbip_vhci,%SPSVCINST_ASSOCSERVICE%, usbip_vhci_Service_Inst
 [usbip_vhci_Service_Inst]
 DisplayName    = %ServiceDesc%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
-StartType      = 3               ; SERVICE_DEMAND_START 
+StartType      = 3               ; SERVICE_DEMAND_START
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
 ServiceBinary  = %12%\usbip_vhci.sys
 LoadOrderGroup = Extended Base

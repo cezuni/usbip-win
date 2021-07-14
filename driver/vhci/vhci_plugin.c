@@ -58,8 +58,8 @@ setup_vpdo_with_dsc_dev(pvpdo_dev_t vpdo, PUSB_DEVICE_DESCRIPTOR dsc_dev)
 		vpdo->subclass = dsc_dev->bDeviceSubClass;
 		vpdo->protocol = dsc_dev->bDeviceProtocol;
 		vpdo->speed = (UCHAR)get_usb_speed(dsc_dev->bcdUSB);
-	}
-	else {
+		vpdo->num_configurations = dsc_dev->bNumConfigurations;
+	} else {
 		vpdo->vendor = 0;
 		vpdo->product = 0;
 		vpdo->revision = 0;
@@ -67,37 +67,40 @@ setup_vpdo_with_dsc_dev(pvpdo_dev_t vpdo, PUSB_DEVICE_DESCRIPTOR dsc_dev)
 		vpdo->subclass = 0;
 		vpdo->protocol = 0;
 		vpdo->speed = USB_SPEED_LOW;
+		vpdo->num_configurations = 0;
 	}
 }
 
 static void
 setup_vpdo_with_dsc_conf(pvpdo_dev_t vpdo, PUSB_CONFIGURATION_DESCRIPTOR dsc_conf)
 {
-	if (dsc_conf) {
-		vpdo->inum = dsc_conf->bNumInterfaces;
-
-		/* Many devices have 0 usb class number in a device descriptor.
-		 * 0 value means that class number is determined at interface level.
-		 * USB class, subclass and protocol numbers should be setup before importing.
-		 * Because windows vhci driver builds a device compatible id with those numbers.
-		 */
-		if (vpdo->usbclass == 0 && vpdo->subclass == 0 && vpdo->protocol == 0) {
-			/* buf[4] holds the number of interfaces in USB configuration.
-			 * Supplement class/subclass/protocol only if there exists only single interface.
-			 * A device with multiple interfaces will be detected as a composite by vhci.
-			 */
-			if (vpdo->inum == 1) {
-				PUSB_INTERFACE_DESCRIPTOR	dsc_intf = dsc_find_first_intf(dsc_conf);
-				if (dsc_intf) {
-					vpdo->usbclass = dsc_intf->bInterfaceClass;
-					vpdo->subclass = dsc_intf->bInterfaceSubClass;
-					vpdo->protocol = dsc_intf->bInterfaceProtocol;
-				}
-			}
-		}
-	}
-	else {
+	if (!dsc_conf) {
 		vpdo->inum = 0;
+		return;
+	}
+
+	vpdo->inum = dsc_conf->bNumInterfaces;
+
+	/* Many devices have 0 usb class number in a device descriptor.
+	 * 0 value means that class number is determined at interface level.
+	 * USB class, subclass and protocol numbers should be setup before importing.
+	 * Because windows vhci driver builds a device compatible id with those numbers.
+	 */
+	if (vpdo->usbclass || vpdo->subclass || vpdo->protocol) {
+		return;
+	}
+
+	/* buf[4] holds the number of interfaces in USB configuration.
+	 * Supplement class/subclass/protocol only if there exists only single interface.
+	 * A device with multiple interfaces will be detected as a composite by vhci.
+	 */
+	if (vpdo->inum == 1) {
+		PUSB_INTERFACE_DESCRIPTOR dsc_intf = dsc_find_first_intf(dsc_conf);
+		if (dsc_intf) {
+			vpdo->usbclass = dsc_intf->bInterfaceClass;
+			vpdo->subclass = dsc_intf->bInterfaceSubClass;
+			vpdo->protocol = dsc_intf->bInterfaceProtocol;
+		}
 	}
 }
 

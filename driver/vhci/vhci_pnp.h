@@ -3,6 +3,20 @@
 #include "basetype.h"
 #include "vhci_dev.h"
 
+#define HWID_ROOT	L"USBIPWIN\\root"
+#define HWID_VHCI	L"USBIPWIN\\vhci"
+
+#define VHUB_PREFIX	L"USB\\ROOT_HUB"
+#define VHUB_VID	L"1209"
+#define VHUB_PID	L"8250"
+#define VHUB_REV	L"0000"
+
+#define HWID_VHUB \
+	VHUB_PREFIX \
+	L"&VID_" VHUB_VID \
+	L"&PID_" VHUB_PID \
+	L"&REV_" VHUB_REV
+
 #define INITIALIZE_PNP_STATE(_Data_)    \
         (_Data_)->common.DevicePnPState =  NotStarted;\
         (_Data_)->common.PreviousPnPState = NotStarted;

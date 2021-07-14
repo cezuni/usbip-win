@@ -164,6 +164,7 @@
       <WppKernelMode>true</WppKernelMode>
       <AdditionalIncludeDirectories>..\..\include;..\lib;$(UM_IncludePath);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_NO_CRT_STDIO_INLINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(DDK_LIB_PATH)wdmsec.lib;$(DDK_LIB_PATH)ntstrsafe.lib;usbd.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -184,6 +185,7 @@
       <WppKernelMode>true</WppKernelMode>
       <AdditionalIncludeDirectories>..\..\include;..\lib;$(UM_IncludePath);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_NO_CRT_STDIO_INLINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(DDK_LIB_PATH)wdmsec.lib;$(DDK_LIB_PATH)ntstrsafe.lib;usbd.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -205,6 +207,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\lib;$(UM_IncludePath);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Inf2CatAdditionalOptions>/driver:aaaa\temp\</Inf2CatAdditionalOptions>
+      <PreprocessorDefinitions>_NO_CRT_STDIO_INLINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(DDK_LIB_PATH)wdmsec.lib;$(DDK_LIB_PATH)ntstrsafe.lib;usbd.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -212,9 +215,7 @@
     <Inf>
       <TimeStamp>0.3.4.0</TimeStamp>
     </Inf>
-    <DriverSign>
-      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
-    </DriverSign>
+    <DriverSign />
     <PostBuildEvent>
       <Command>gencat.bat $(OutDir) 10_$(DDKPlatform) $(SolutionDir)/driver/usbip_test.pfx
 </Command>
@@ -229,6 +230,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\lib;$(UM_IncludePath);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_NO_CRT_STDIO_INLINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(DDK_LIB_PATH)wdmsec.lib;$(DDK_LIB_PATH)ntstrsafe.lib;usbd.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -236,9 +238,7 @@
     <Inf>
       <TimeStamp>0.3.4.0</TimeStamp>
     </Inf>
-    <DriverSign>
-      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
-    </DriverSign>
+    <DriverSign />
     <PostBuildEvent>
       <Command>gencat.bat $(OutDir) 10_$(DDKPlatform) $(SolutionDir)/driver/usbip_test.pfx
 </Command>
